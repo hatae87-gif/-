@@ -1,0 +1,10 @@
+{
+  "name": "ffp-ppro-workflow",
+  "version": "0.1.0",
+  "description": "Premiere Pro UXP 플러그인 — 컷 편집 자동화, 자막/캡션 생성, 에셋 일괄 관리",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {}
+}
