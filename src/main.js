@@ -11,13 +11,22 @@ const $ = (sel) => document.querySelector(sel);
 
 // ---- 로그 ----
 const logEl = $("#log");
+function nowHHMMSS() {
+  // UXP는 toLocaleTimeString 로케일 인자 지원이 불안정 → 직접 포맷
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
 function log(msg, kind = "") {
-  const t = new Date().toLocaleTimeString("ko-KR");
-  const line = document.createElement("div");
-  if (kind) line.className = kind;
-  line.textContent = `[${t}] ${msg}`;
-  logEl.appendChild(line);
-  logEl.scrollTop = logEl.scrollHeight;
+  try {
+    const line = document.createElement("div");
+    if (kind) line.className = kind;
+    line.textContent = `[${nowHHMMSS()}] ${msg}`;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  } catch (_) {
+    // 로그 출력 자체가 실패해도 앱이 멈추지 않도록 무시
+  }
 }
 const ok = (m) => log(m, "ok");
 const err = (m) => log("⚠ " + m, "err");
