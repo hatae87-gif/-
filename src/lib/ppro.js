@@ -105,6 +105,39 @@ async function describeApi() {
   return out.join("\n");
 }
 
+/**
+ * 활성(또는 전달된) 시퀀스의 프레임레이트(fps)를 반환. (Premiere 26+에서 지원)
+ * 버전/메서드 차이를 흡수하며, 알 수 없으면 0을 반환합니다.
+ */
+async function getFrameRate(sequence) {
+  sequence = sequence || (await getSequence());
+  try {
+    // 26+: 시퀀스에서 직접 프레임레이트/타임베이스 조회
+    if (typeof sequence.getFrameRate === "function") {
+      const fr = await sequence.getFrameRate();
+      // FrameRate 객체일 수도, 숫자일 수도 있음
+      if (fr == null) return 0;
+      if (typeof fr === "number") return fr;
+      if (typeof fr.value === "number") return fr.value;
+      if (typeof fr.getValue === "function") return await fr.getValue();
+      if (fr.ticksPerFrame) return 254016000000 / fr.ticksPerFrame; // ticks/sec ÷ ticks/frame
+    }
+    if (typeof sequence.getVideoFrameRate === "function") {
+      const v = await sequence.getVideoFrameRate();
+      return typeof v === "number" ? v : Number(v) || 0;
+    }
+  } catch (_) {}
+  return 0;
+}
+
+/**
+ * 초 단위 시간을 프레임 경계로 스냅. fps<=0 이면 원값을 그대로 반환.
+ */
+function snapToFrame(seconds, fps) {
+  if (!fps || fps <= 0) return seconds;
+  return Math.round(seconds * fps) / fps;
+}
+
 /** 패널 버전 정보 (uxp host 정보 포함) */
 function hostInfo() {
   try {
@@ -124,4 +157,6 @@ module.exports = {
   runTransaction,
   describeApi,
   hostInfo,
+  getFrameRate,
+  snapToFrame,
 };

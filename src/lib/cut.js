@@ -8,7 +8,7 @@
  * (razorAtMarkers 는 버전에 따라 동작하지 않을 수 있는 실험적 기능으로 분리해 두었습니다.)
  */
 
-const { ppro, getSequence } = require("./ppro");
+const { ppro, getSequence, getFrameRate, snapToFrame } = require("./ppro");
 const { parseSrt, timecodeToSeconds } = require("./srt");
 
 /** 초(seconds) → UXP TickTime 객체 (버전별 생성자 차이 흡수) */
@@ -60,12 +60,14 @@ async function createOneMarker(markers, seconds, name = "") {
 async function addMarkersAtTimes(points) {
   const sequence = await getSequence();
   const markers = await getMarkers(sequence);
+  const fps = await getFrameRate(sequence); // 26+ 에서만 >0, 그 외엔 0(스냅 생략)
   let count = 0;
   for (const p of points) {
-    await createOneMarker(markers, p.time, p.name || "");
+    await createOneMarker(markers, snapToFrame(p.time, fps), p.name || "");
     count++;
   }
-  return { count, message: `${count}개 마커를 시퀀스에 추가했습니다.` };
+  const snapNote = fps ? ` (${fps.toFixed(2)}fps 프레임 스냅)` : "";
+  return { count, message: `${count}개 마커를 시퀀스에 추가했습니다.${snapNote}` };
 }
 
 /**
