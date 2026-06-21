@@ -70,7 +70,7 @@
 ## 4. 프로젝트 구조
 
 ```
-manifest.json        UXP 플러그인 매니페스트 (manifestVersion 5, host PPRO 25+)
+manifest.json        UXP 플러그인 매니페스트 (manifestVersion 5, host premierepro 25.2+)
 index.html           패널 UI
 src/
   main.js            UI ↔ 기능 연결, 로그/에러 처리
